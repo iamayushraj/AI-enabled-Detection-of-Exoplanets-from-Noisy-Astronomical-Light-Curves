@@ -1,0 +1,17 @@
+{
+  "xgboost": {
+    "cv_mean_accuracy": NaN,
+    "cv_std": NaN,
+    "val_accuracy": 0.86
+  },
+  "cnn": {
+    "final_val_accuracy": 0.86,
+    "final_train_loss": 0.3157
+  },
+  "dataset": {
+    "total_samples": 748,
+    "train_samples": 598,
+    "val_samples": 150,
+    "n_per_class": 2000
+  }
+}
