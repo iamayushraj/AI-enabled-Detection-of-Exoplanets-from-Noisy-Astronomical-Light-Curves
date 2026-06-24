@@ -691,7 +691,17 @@ elif page == "Pipeline & Analysis":
                         uploaded_file.seek(0)
                         df = pd.read_csv(uploaded_file, encoding='latin1', sep=r'\s+', on_bad_lines='skip', comment='#')
 
-            if "time" not in df.columns or "flux" not in df.columns:
+            # Standardize column names (handle uppercase, spaces, and NASA's PDCSAP_FLUX)
+            if df is not None and not df.empty:
+                df.columns = df.columns.str.strip().str.lower()
+                df = df.rename(columns={
+                    "pdcsap_flux": "flux", 
+                    "sap_flux": "flux", 
+                    "bjd": "time", 
+                    "jd": "time"
+                })
+
+            if df is None or "time" not in df.columns or "flux" not in df.columns:
                 st.error("CSV must have 'time' and 'flux' columns!")
             else:
                 st.success(f"Loaded **{uploaded_file.name}** - {len(df)} data points")
@@ -751,6 +761,17 @@ elif page == "Pipeline & Analysis":
                             df = pd.read_csv(sample_file, encoding='latin1', on_bad_lines='skip', comment='#')
                         except Exception:
                             df = pd.read_csv(sample_file, encoding='latin1', sep=r'\s+', on_bad_lines='skip', comment='#')
+                
+                # Standardize column names
+                if df is not None and not df.empty:
+                    df.columns = df.columns.str.strip().str.lower()
+                    df = df.rename(columns={
+                        "pdcsap_flux": "flux", 
+                        "sap_flux": "flux", 
+                        "bjd": "time", 
+                        "jd": "time"
+                    })
+
                 st.info(f"{sample_file.name} - {len(df)} points - Class: **{sample_class}**")
 
                 fig = create_plotly_lightcurve(
