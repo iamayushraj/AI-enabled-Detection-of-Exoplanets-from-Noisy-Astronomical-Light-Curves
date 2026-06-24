@@ -677,10 +677,10 @@ elif page == "Pipeline & Analysis":
 
         if uploaded_file:
             try:
-                df = pd.read_csv(uploaded_file)
+                df = pd.read_csv(uploaded_file, on_bad_lines='skip', comment='#')
             except UnicodeDecodeError:
                 uploaded_file.seek(0)
-                df = pd.read_csv(uploaded_file, encoding='latin1')
+                df = pd.read_csv(uploaded_file, encoding='latin1', on_bad_lines='skip', comment='#')
 
             if "time" not in df.columns or "flux" not in df.columns:
                 st.error("CSV must have 'time' and 'flux' columns!")
@@ -733,9 +733,9 @@ elif page == "Pipeline & Analysis":
 
             if sample_file:
                 try:
-                    df = pd.read_csv(sample_file)
+                    df = pd.read_csv(sample_file, on_bad_lines='skip', comment='#')
                 except UnicodeDecodeError:
-                    df = pd.read_csv(sample_file, encoding='latin1')
+                    df = pd.read_csv(sample_file, encoding='latin1', on_bad_lines='skip', comment='#')
                 st.info(f"{sample_file.name} - {len(df)} points - Class: **{sample_class}**")
 
                 fig = create_plotly_lightcurve(
