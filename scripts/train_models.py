@@ -266,6 +266,39 @@ def run_training(n_per_class: int = 400, data_dir: str = None, models_dir: str =
         json.dump(metrics, f, indent=2)
     print(f"  Metrics:       {metrics_path}")
 
+    # Generate evaluation metrics for the dashboard
+    try:
+        from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix, roc_auc_score
+        
+        y_pred = xgb_result["model"].predict(X_val_feat)
+        y_prob = xgb_result["model"].predict_proba(X_val_feat)
+        
+        acc = accuracy_score(y_val, y_pred)
+        prec, rec, f1, _ = precision_recall_fscore_support(y_val, y_pred, average="weighted")
+        cm = confusion_matrix(y_val, y_pred).tolist()
+        
+        try:
+            roc_auc_list = roc_auc_score(y_val, y_prob, multi_class='ovr', average=None).tolist()
+            roc_auc = {name: score for name, score in zip(CLASS_NAMES, roc_auc_list)}
+        except:
+            roc_auc = {name: 0.0 for name in CLASS_NAMES}
+            
+        evaluation_metrics = {
+            "accuracy": float(acc),
+            "precision": float(prec),
+            "recall": float(rec),
+            "f1": float(f1),
+            "confusion_matrix": cm,
+            "class_labels": CLASS_NAMES,
+            "roc_auc_per_class": roc_auc
+        }
+        eval_path = os.path.join(models_dir, "evaluation_metrics.json")
+        with open(eval_path, "w") as f:
+            json.dump(evaluation_metrics, f, indent=2)
+        print(f"  Eval Metrics:  {eval_path}")
+    except Exception as e:
+        print(f"  Could not generate evaluation metrics: {e}")
+
     return metrics
 
 
