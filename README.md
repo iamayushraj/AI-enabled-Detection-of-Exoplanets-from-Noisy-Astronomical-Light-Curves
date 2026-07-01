@@ -1,8 +1,8 @@
 # 🪐 ExoplanetAI — AI-Enabled Detection of Exoplanets from Noisy Light Curves
 
-An AI-powered astronomical analysis system that automatically detects and classifies exoplanet transit signals from noisy stellar light curve data collected by the **Transiting Exoplanet Survey Satellite (TESS)**.
+An advanced, AI-powered astronomical analysis system that automatically detects and classifies exoplanet transit signals from noisy stellar light curve data collected by the **Transiting Exoplanet Survey Satellite (TESS)**.
 
-Built for **ISRO Challenge 7** — combining astronomy, machine learning, signal processing, statistical analysis, and interactive data visualization.
+Built for **ISRO Challenge 7** — combining astronomy, machine learning, signal processing, statistical analysis, and interactive data visualization into a stunning Dark Neon dashboard.
 
 ---
 
@@ -17,10 +17,10 @@ pip install -r requirements.txt
 ### 2. Generate Synthetic Training Data
 
 ```bash
-python run.py generate
+python scripts/generate_synthetic.py
 ```
 
-This creates 500 realistic light curves across 5 classes:
+This creates realistic light curves across 5 classes:
 - 🌍 **Exoplanet Transits** — Periodic brightness dips from planetary transits
 - ⭐ **Eclipsing Binaries** — Deep dips from binary star systems
 - 💫 **Variable Stars** — Sinusoidal brightness variations
@@ -30,45 +30,39 @@ This creates 500 realistic light curves across 5 classes:
 ### 3. Train ML Models
 
 ```bash
-python run.py train
+python scripts/train_models.py
 ```
 
-Trains:
-- **XGBoost** classifier on 14 extracted features
+Trains the dual-engine AI:
+- **XGBoost** classifier on 11 extracted physical features
 - **1D CNN** on phase-folded light curves
-- Evaluates with 5-fold cross-validation
+- Generates `models/evaluation_metrics.json` automatically
 
 ### 4. Launch Dashboard
 
 ```bash
-python run.py dashboard
+streamlit run dashboard/app.py
 ```
 
-Opens the interactive Streamlit dashboard at `http://localhost:8501`
-
-### 5. Quick Demo (Terminal)
-
-```bash
-python run.py demo
-```
+Opens the interactive Streamlit dashboard at `http://localhost:8501`.
 
 ---
 
 ## 📐 Architecture
 
-```
+```text
 TESS Light Curve Data
         ↓
 ┌──────────────────────────┐
-│   Data Ingestion         │  CSV / FITS upload or TESS download
+│   Data Ingestion         │  CSV Upload or Live MAST Fetch via TIC ID
 └──────────┬───────────────┘
            ↓
 ┌──────────────────────────┐
-│   Preprocessing          │  Sigma clipping, median filter, Savitzky-Golay
+│   Preprocessing          │  Sigma clipping, float64 casting, interpolation
 └──────────┬───────────────┘
            ↓
 ┌──────────────────────────┐
-│   Detrending             │  Polynomial / sliding window normalization
+│   Detrending             │  Polynomial smoothing and flattening
 └──────────┬───────────────┘
            ↓
 ┌──────────────────────────┐
@@ -76,7 +70,7 @@ TESS Light Curve Data
 └──────────┬───────────────┘
            ↓
 ┌──────────────────────────┐
-│   Feature Extraction     │  14 features: depth, period, SNR, symmetry, ...
+│   Feature Extraction     │  11 features: depth, period, SNR, symmetry, ...
 └──────────┬───────────────┘
            ↓
 ┌──────────────────────────┐
@@ -85,16 +79,15 @@ TESS Light Curve Data
 └──────────┬───────────────┘
            ↓
 ┌──────────────────────────┐
-│   Parameter Estimation   │  Period, depth, Rp/Rs, duration, confidence
+│   Parameter Estimation   │  Period, depth, duration, confidence scoring
 └──────────┬───────────────┘
            ↓
 ┌──────────────────────────┐
-│   SHAP Explainability    │  "Why was this classified as a transit?"
+│   SHAP Explainability    │  Interpretable AI feature importance
 └──────────┬───────────────┘
            ↓
 ┌──────────────────────────┐
-│   Streamlit Dashboard    │  Interactive visualization & reports
-│   FastAPI Backend        │  REST API for programmatic access
+│   Streamlit Dashboard    │  Interactive visualizations & Dark Neon UI
 └──────────────────────────┘
 ```
 
@@ -104,51 +97,31 @@ TESS Light Curve Data
 
 | Page | Description |
 |------|-------------|
-| 🏠 Home | Overview stats, classification distribution, recent results |
-| 📤 Upload & Analyze | Upload CSV files or load sample data, one-click analysis |
-| 📊 Analysis View | Raw/cleaned curves, BLS periodogram, phase-folded transit, parameters |
-| 🧠 Explainability | SHAP feature importance, natural language explanations |
-| 📦 Batch Processing | Process hundreds of light curves, confusion matrix, CSV export |
-
----
-
-## 🔌 API Endpoints
-
-Start the API server:
-```bash
-python run.py api
-```
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/upload` | Upload light curve CSV |
-| POST | `/analyze` | Run full analysis pipeline |
-| POST | `/predict` | Quick classification |
-| GET | `/report/{id}` | Get analysis report |
-| GET | `/health` | Health check |
+| 🏠 **Home** | Overview stats, animated system visualization, loaded models status |
+| 📤 **Pipeline & Analysis** | Upload local CSV files, detrending, detection, and parameter estimation |
+| 📦 **Batch Processing** | Process multiple light curves in one pass with aggregate statistics |
+| 📡 **Live Fetch (TIC)** | Directly pull TESS light curves from NASA's MAST archive via TIC ID |
+| 🧠 **Explainability (SHAP)** | Deep learning model explainability with feature importance breakdowns |
+| 📈 **Model Metrics** | Confusion matrix, ROC-AUC curves, and real-time validation accuracy (94.5%) |
 
 ---
 
 ## 📁 Project Structure
 
-```
+```text
 ExoplanetAI/
-├── data/                    # Light curve data
-│   ├── synthetic/           # Generated training data
-│   └── tess/                # Real TESS downloads
-├── models/                  # Trained ML models
-├── preprocessing/           # Noise removal & detrending
-├── detection/               # BLS transit detection
-├── features/                # Feature extraction
 ├── classification/          # XGBoost, CNN, hybrid classifier
+├── dashboard/               # Streamlit interactive dashboard (app.py)
+├── data/                    # Light curve data (synthetic/tess)
+├── detection/               # BLS transit detection
 ├── estimation/              # Orbital parameter estimation
-├── explainability/          # SHAP explanations
-├── backend/                 # FastAPI REST API
-├── dashboard/               # Streamlit interactive dashboard
+├── explainability/          # SHAP explanations (shap_explainer.py)
+├── features/                # Feature extraction pipeline
+├── models/                  # Trained ML models and evaluation metrics
+├── preprocessing/           # Noise removal & detrending (float64 compliant)
 ├── scripts/                 # Data generation & training
-├── requirements.txt
-├── run.py                   # Main CLI entry point
-└── README.md
+├── requirements.txt         # Dependency tree
+└── README.md                # Project documentation
 ```
 
 ---
@@ -157,19 +130,17 @@ ExoplanetAI/
 
 | Category | Technology |
 |----------|------------|
-| **Astronomy** | Astropy, Lightkurve, Astroquery |
+| **Astronomy** | Astropy, Lightkurve (NASA MAST APIs) |
 | **ML/AI** | PyTorch (1D CNN), XGBoost, Scikit-learn |
-| **Signal Processing** | SciPy (Savitzky-Golay, median filter) |
-| **Explainability** | SHAP |
-| **Backend** | FastAPI, Uvicorn |
-| **Dashboard** | Streamlit, Plotly |
-| **Data** | NumPy, Pandas |
+| **Signal Processing** | SciPy, Numpy |
+| **Explainability** | SHAP (SHapley Additive exPlanations) |
+| **Dashboard** | Streamlit, Plotly Express, Plotly Graph Objects |
 
 ---
 
 ## 👥 Team
 
-Built for ISRO's Challenge 7 hackathon.
+Engineered and designed for **ISRO's Challenge 7** Hackathon. 
 
 ---
 
